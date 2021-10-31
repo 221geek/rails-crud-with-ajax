@@ -1,0 +1,145 @@
+<main class="container py-3 m-2">
+  <div class="badge py-2 px-4">
+    Tasks
+  </div>
+  <div class="mt-4 d-flex justify-content-around align-items-start">
+    <div class="board p-3">
+      <h5>To Do</h5>
+      <ul class="list-unstyled my-3 dropzone" id="todo">
+        <% @tasks.each do |task| %>
+        <% if task.status == 'todo' %>
+        <%= render 'task_row', task: task %>
+        <% end %>
+        <% end %>
+      </ul>
+      <%= link_to raw('Add task'), new_task_path, data: {bs_toggle: 'modal', bs_target: '#newTaskModal', remote: true} %>
+    </div>
+    <div class="board p-3">
+      <h5>Doing</h5>
+      <ul class="list-unstyled my-3 dropzone" id="doing">
+        <% @tasks.each do |task| %>
+        <% if task.status == 'doing' %>
+        <%= render 'task_row', task: task %>
+        <% end %>
+        <% end %>
+      </ul>
+    </div>
+    <div class="board p-3">
+      <h5>Done</h5>
+      <ul class="list-unstyled my-3 dropzone" id="done">
+        <% @tasks.each do |task| %>
+        <% if task.status == 'done' %>
+        <%= render 'task_row', task: task %>
+        <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Add Modal -->
+  <div class="modal fade" id="newTaskModal" tabindex="-1" aria-labelledby="newTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newTaskModalLabel">Add task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div id="newTaskForm"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show Modal -->
+  <div class="modal fade" id="showTaskModal" tabindex="-1" aria-labelledby="showTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="showTaskModalLabel">Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div id="showTask"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div id="editTask"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const cards = document.querySelectorAll('.task');
+  const dropzones = document.querySelectorAll('.dropzone');
+
+  dropzones.forEach(dropzone => {
+    dropzone.addEventListener('dragover', dragover);
+    dropzone.addEventListener('dragleave', dragleave);
+    dropzone.addEventListener('drop', drop);
+  });
+
+  cards.forEach(card => {
+    card.addEventListener('dragstart', dragstart);
+    card.addEventListener('dragend', dragend);
+    card.addEventListener('drag', drag);
+  });
+
+
+  // dragItem
+  function dragstart() {
+    this.classList.add('is-dragging')
+  }
+
+  function drag() {
+    dropzones.forEach(dropzone => dropzone.classList.add('candidate'));
+  }
+
+  function dragend() {
+    this.classList.remove('is-dragging');
+    dropzones.forEach(dropzone => dropzone.classList.remove('candidate'));
+    const status = this.parentElement.id;
+    const taskId = (this.id).slice(5);
+    $.ajax({
+      type: "PUT",
+      url: `/tasks/${taskId}`,
+      dataType: 'json',
+      data: {
+        task: {
+          status: status
+        }
+      },
+      success: function () {
+        console.log('success')
+      }
+    });
+  }
+
+  // dropZone
+  function dragover({ target }) {
+    let child = document.querySelector(".is-dragging");
+    if (child && target != this) {
+      this.insertBefore(child, target)
+    } else if (child) {
+      this.appendChild(child);
+    }
+
+    this.classList.add('over');
+  }
+
+  function dragleave() {
+    this.classList.remove('over');
+  }
+
+  function drop() {
+    this.classList.remove('over');
+  }
+</script>

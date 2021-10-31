@@ -1,0 +1,4 @@
+<li draggable="true" class="task my-2 p-2 d-flex justify-content-between" id="task_<%= task.id %>">
+    <%= link_to task.title, task_path(task), data: {bs_toggle: 'modal', bs_target: '#showTaskModal', remote: true}, style: "color:#242424" %>
+    <%= link_to raw('<em class="fa fa-highlighter"></em>'), edit_task_path(task), data: {bs_toggle: 'modal', bs_target: '#editTaskModal', remote: true}, style: "color:#242424", class: 'edit px-1' %>
+</li>

@@ -1,0 +1,6 @@
+<% if @task.errors.any? %>
+    alert('update Error')
+<% else %>
+    $("#task_<%= @task.id %>").replaceWith("<%= j render('task_row', task: @task) %>");
+    $(".close-modal").click();
+<% end %>
